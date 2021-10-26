@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@emurgo/cardano-serialization-lib-nodejs": "^4.2.0",
+    "@blockfrost/blockfrost-js": "^2.0.2",
     "axios": "^0.21.4",
     "bech32": "^1.1.4",
     "cardano-wallet": "^1.2.2",

@@ -35,7 +35,7 @@ import { createCertificatesView } from "./Transactions/certificates";
 import { createTransactionOutputView } from "./Transactions/output";
 import { poolDelegationHistory } from "./services/poolHistory";
 import { handleGetCardanoWalletPools } from "./services/cardanoWallet";
-
+import { BlockfrostAPI } from '@blockfrost/blockfrost-js';
 
 const pool = new Pool({ user: config.get("db.user")
   , host: config.get("db.host")
@@ -43,6 +43,11 @@ const pool = new Pool({ user: config.get("db.user")
   , password: config.get("db.password")});
 createCertificatesView(pool);
 createTransactionOutputView(pool);
+
+
+const BF_API = new BlockFrostAPI({
+  projectId: config.get("server.blockfrost_api_key"), // see: https://blockfrost.io
+});
 
 
 const healthChecker = new HealthChecker(() => askBestBlock(pool));

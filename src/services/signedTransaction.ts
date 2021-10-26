@@ -3,9 +3,12 @@ import axios from "axios";
 import { Request, Response } from "express";
 
 const submissionEndpoint :string = config.get("server.txSubmissionEndpoint");
-
-const contentTypeHeaders = {"Content-Type": "application/octet-stream"}; // THIS IS FOR CARDANO-WALLET, CBOR IS FOR CARDANO-SUBMIT-API (1.27.0).
-// const contentTypeHeaders = {"Content-Type": "application/cbor"};
+const blockfrostAPIKey  :string = config.get("server.blockfrost_api_key");
+//const contentTypeHeaders = {"Content-Type": "application/octet-stream"}; // THIS IS FOR CARDANO-WALLET, CBOR IS FOR CARDANO-SUBMIT-API (1.27.0).
+const contentTypeHeaders = {
+  "Content-Type": "application/cbor",
+  "project_id": blockfrostAPIKey
+  };
 
 export const handleSignedTx = async (req: Request, res: Response): Promise<void> => {
   if (!req.body.signedTx)
@@ -46,7 +49,33 @@ export const handleSignedTx = async (req: Request, res: Response): Promise<void>
       }
       res.send([]);
       return;
-    } else {
+    } else if (endpointResponse.status === 400){
+      const msg = `Bad Request: ${endpointResponse.data.Left}`;
+      throw Error(msg);
+
+    } else if (endpointResponse.status === 403){
+      const msg = `Auth Secret is Missing: ${endpointResponse.data.Left}`;
+      throw Error(msg);
+
+    }else if (endpointResponse.status === 404){
+      const msg = `Component Not Found: ${endpointResponse.data.Left}`;
+      throw Error(msg);
+
+    }else if (endpointResponse.status === 418){
+      const msg = `IP has been auto-banned for extensive requests after limit reached: ${endpointResponse.data.Left}`;
+      throw Error(msg);
+
+    }
+    else if (endpointResponse.status === 425){
+      const msg = `Mempool is already full, not accepting net TXs: ${endpointResponse.data.Left}`;
+      throw Error(msg);
+
+    }else if (endpointResponse.status === 429){
+      const msg = `Usage Limit Reached: ${endpointResponse.data.Left}`;
+      throw Error(msg);
+
+    }
+    else {
       const {status, statusText, data} = endpointResponse || {};
       throw Error(`I did not understand the response from the submission endpoint: ${JSON.stringify({
         status,
