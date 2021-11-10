@@ -1,7 +1,11 @@
 FROM node:14.17.6-alpine3.13
 
+#Install PM2
+RUN npm install pm2 -g
+
+
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 RUN apk add git
 # Install app dependencies
@@ -16,5 +20,5 @@ RUN npm install
 # Bundle app source
 
 EXPOSE 8082
-CMD [ "node", "./dist/index.js" ]
+CMD ["pm2-runtime", "--json", "pm2.yaml"]
 
