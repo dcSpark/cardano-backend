@@ -44,6 +44,7 @@ import { createTransactionUtilityFunctions } from "./Transactions/userDefinedFun
 import {poolDelegationHistory} from "./services/poolHistory";
 import {handleGetCardanoWalletPools} from "./services/cardanoWallet";
 
+import { getMilkomedaInfo } from "./services/milkomedaInfo";
 
 import { mapTransactionFragsToResponse } from "./utils/mappers";
 
@@ -407,6 +408,12 @@ const routes : Route[] = [
   path: "/v0/catalyst/fundInfo"
   , method: "get",
   handler: getFundInfo
+},
+// Milkomeda config info
+{
+  path: "/milkomeda"
+  , method: "get"
+  , handler: getMilkomedaInfo()
 }
 ];
 
