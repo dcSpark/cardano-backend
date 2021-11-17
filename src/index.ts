@@ -44,7 +44,7 @@ import { createTransactionUtilityFunctions } from "./Transactions/userDefinedFun
 import {poolDelegationHistory} from "./services/poolHistory";
 import {handleGetCardanoWalletPools} from "./services/cardanoWallet";
 
-import { getMilkomedaInfo } from "./services/milkomedaInfo";
+import { getMilkomedaInfo, getMilkomedaTokensByNetwork } from "./services/milkomedaInfo";
 
 import { mapTransactionFragsToResponse } from "./utils/mappers";
 
@@ -414,7 +414,12 @@ const routes : Route[] = [
   path: "/milkomeda"
   , method: "get"
   , handler: getMilkomedaInfo()
-}
+},
+{
+  path: "/milkomeda/tokens/:network"
+  , method: "get"
+  , handler: getMilkomedaTokensByNetwork()
+},
 ];
 
 applyRoutes(routes, router);
