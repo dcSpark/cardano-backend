@@ -5,6 +5,8 @@ name: Build-Push-Docker-onRelease
 # Controls when the workflow will run
 on:
   push:
+    paths-ignore:
+      - '.github/**'
     branches:
       - 'master'
 
