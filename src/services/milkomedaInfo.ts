@@ -8,7 +8,7 @@ type NetworkToken = {
 }
 
 type Token = {
-    name: string
+    tokenName: string
     policyId: string
 }
 
