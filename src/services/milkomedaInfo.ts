@@ -1,10 +1,6 @@
 import { Request, Response } from "express";
 import config from "config";
-
-enum NetworkNames { // exemplary names here
-  testnet = "testnet",
-  mainnet = "mainnet",
-}
+import { NetworkNames } from "@dcspark/milkomeda-constants/types";
 
 type NetworkToken = {
   name: NetworkNames,
@@ -18,7 +14,7 @@ type Token = {
 
 type MilkomedaConfig = {
     minimumValue: number,
-    address: string,
+    address: string, // address as string in bech32
     tokensPerNetwork: NetworkToken[]
 };
 
@@ -48,11 +44,8 @@ export const getMilkomedaInfo = () => async (req: Request, res: Response) => {
   }
 
   switch (req.params.network) {
-    case NetworkNames.testnet:
-      res.send(getNetworkTokens(networks, NetworkNames.testnet));
-      break;
-    case NetworkNames.mainnet:
-      res.send(getNetworkTokens(networks, NetworkNames.mainnet));
+    case NetworkNames.internalTestnet:
+      res.send(getNetworkTokens(networks, NetworkNames.internalTestnet));
       break;
     default:
       res.status(404).send(`List of tokens for ${req.params.network} was not found`);
