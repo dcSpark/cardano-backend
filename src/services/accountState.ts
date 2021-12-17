@@ -42,7 +42,7 @@ const accountRewardsQuery = `
       addr_id
   ) as "totalReward" on queried_addresses.id = "totalReward".addr_id
 
-  group by queried_addresses.id, queried_addresses.hash_raw`;
+  group by queried_addresses.hash_raw`;
 
 interface RewardInfo {
   remainingAmount: string;
