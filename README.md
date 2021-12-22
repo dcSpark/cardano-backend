@@ -741,3 +741,32 @@ We recommend querying using payment key hashes (`addr_vkh`) when possible (other
   }
   ```
 </details>
+
+<details>
+  <summary>milkomeda</summary>
+  This endpoint is used to get milkomeda info data (minValue & address)
+  Input
+  None (GET request)
+  Output
+  ```js
+  {
+    minimumValue: number,
+    address: string,
+  }
+  ```
+</details>
+<details>
+  <summary>milkomeda/tokens/:network</summary>
+  This endpoint is used to get tokens list per deployment/network
+  Input
+  Name of the network, which list of tokens should be returned (GET request)
+  Output
+  ```js
+  {
+    name: string, // name of the network
+    tokens: [
+      { tokenName: bytesEncodedToHex, policyId: bytesEncodedToHex },
+    ]
+  }
+  ```
+</details>
