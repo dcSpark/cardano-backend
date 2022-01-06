@@ -50,6 +50,34 @@ npm run dev
 # run the tests on a different terminal
 npm run test
 ```
+### Testing internal environment
+
+For testing purposes please put in `config/default.ts`:
+
+```typescript
+user: process.env.POSTGRES_USER || "flintdev",
+host: process.env.POSTGRES_HOST || "10.116.16.14",
+database: process.env.POSTGRES_DB || "cexplorer",
+password: process.env.POSTGRES_PASSWORD || <agreed password here>,
+```
+
+> TODO:
+>
+> In the future there will be `internal-cardano.flint-wallet.com` instead IP, but I don't know how to set traffic for it yet
+
+
+In case You are getting authentication error, the **read-only** user `flintdev` might not exists, then please log into Postgres server and execute:
+
+```SQL
+CREATE USER flintdev WITH LOGIN PASSWORD <agreed password here>;
+
+GRANT CONNECT ON DATABASE cexplorer TO flintdev;
+GRANT USAGE ON SCHEMA public TO flintdev;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO flintdev;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO flintdev;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO flintdev;
+```
 
 ## API
 
@@ -206,7 +234,7 @@ We recommend querying using payment key hashes (`addr_vkh`) when possible (other
   ```js
   [
     {|
-        epoch: number;    
+        epoch: number;
         poolHash: string;
         slot: number;
         tx_ordinal: number
@@ -321,7 +349,7 @@ We recommend querying using payment key hashes (`addr_vkh`) when possible (other
       amount: string,
       id: string, // concatenation of txHash || index
       index: number,
-      txHash: string, 
+      txHash: string,
       assets: Asset[]
     }>,
     collateral_inputs: Array<{
@@ -426,7 +454,7 @@ We recommend querying using payment key hashes (`addr_vkh`) when possible (other
         amount: string,
         id: string, // concatenation of txHash || index
         index: number,
-        txHash: string, 
+        txHash: string,
         assets: Asset[]
       }>,
       collateral_inputs: Array<{
@@ -724,7 +752,7 @@ We recommend querying using payment key hashes (`addr_vkh`) when possible (other
       amount: string,
       id: string, // concatenation of txHash || index
       index: number,
-      txHash: string, 
+      txHash: string,
       assets: Asset[]
     }>,
     collateralInputs: Array<{
