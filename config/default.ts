@@ -11,6 +11,7 @@ export default {
   },
   server: {
     addressRequestLimit: 50,
+    transactionRequestLimit: 100,
     apiResponseLimit: 50,
     priceFeed: process.env.priceURL || "http://localhost:8090/v1/getPrice",
     tokenInfoFeed:
@@ -25,5 +26,5 @@ export default {
     txsHashesRequestLimit: 150,
   },
   blockfrostProjectKey: process.env.BLOCKFROST || "",
-  safeBlockDifference: process.env.SAFE_BLOCK_DIFFERENCE || "10"
+  safeBlockDifference: process.env.SAFE_BLOCK_DIFFERENCE || "10",
 };
