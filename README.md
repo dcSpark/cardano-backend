@@ -92,7 +92,7 @@ We recommend querying using payment key hashes (`addr_vkh`) when possible (other
   <summary>txs/utxoForTransactions</summary>
   Input
 
-  Up to 100 transaction in the request
+  Up to 500 transaction in the request
 
   ```js
   { 
