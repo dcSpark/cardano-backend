@@ -36,12 +36,13 @@ function createGetMultiAssetTxMintMetadataQuery(assets: PolicyIdAssetMapType) {
   const whereConditions = Object.keys(assets)
     .map((policyIdHex: string) => {
       const assetNames = assets?.[policyIdHex] ?? [];
+      const policID = `( encode(ma.policy, 'hex') = ($${index++})::varchar and`;
       const query = assetNames
-        .map((_) => 
-            `(encode(ma.name, 'hex') = ($${index++})::varchar
-          and encode(ma.policy, 'hex') = ($${index++})::varchar )`)
+        .map((_) => `encode(ma.name, 'hex') = ($${index++})::varchar`)
         .join(" or ");
-      return query;
+      const addPolicyId = `${policID} (${query}) )`;
+
+      return addPolicyId;
     })
     .join(" or ");
 
@@ -64,20 +65,25 @@ export async function getMultiAssetTxMintMetadata(
   assets: PolicyIdAssetMapType
 ): Promise<Record<string, MultiAssetTxMintMetadataType[]>> {
   const query = createGetMultiAssetTxMintMetadataQuery(assets);
-  const params = Object.keys(assets)
-    .map((policyIdHex: string) => {
-      const assetNames = assets?.[policyIdHex] ?? [];
-      return assetNames.map((assetName) => [
-        assetName,
-        policyIdHex
-      ])
-      .reduce((prev, curr) => prev.concat(curr), []);
-    })
-    .reduce((prev, curr) => prev.concat(curr), []);
+  // const params = Object.keys(assets)
+  //   .map((policyIdHex: string) => {
+  //     const assetNames = assets?.[policyIdHex] ?? [];
+  //     return assetNames
+  //       .map((assetName) => [assetName, policyIdHex])
+  //       .reduce((prev, curr) => prev.concat(curr), []);
+  //   })
+  //   .reduce((prev, curr) => prev.concat(curr), []);
+  const params = Object.keys(assets).reduce<string[]>(
+    (acc, currentPolicyIdHex) => {
+      //const assetNames = assets?.[policyIdHex] ?? [];
+      return acc.concat([currentPolicyIdHex, ...assets[currentPolicyIdHex]]);
+    },
+    []
+  );
 
   const ret: { [key: string]: MultiAssetTxMintMetadataType[] } = {};
   const results = await pool.query(query, params);
-  
+
   for (const row of results.rows) {
     const policyAndName = `${row.policy}.${row.asset}`;
     if (!ret[policyAndName]) {
@@ -112,60 +118,55 @@ export function formatTokenMetadata(
   metadata: { [key: string]: MultiAssetTxMintMetadataType[] },
   policyIdAssetMap: PolicyIdAssetMapType
 ): PolicyIdAssetMetadataInfoMap {
-  const results = Object.keys(policyIdAssetMap).reduce<PolicyIdAssetMetadataInfoMap>(
-    (policyMap, policyIdHex: string) => {
-      const assetNamesHex: string[] = policyIdAssetMap[policyIdHex];
-      const assetInfoMap = assetNamesHex?.reduce<AssetMetadataInfoMap>(
-        (assetMap, assetHex: string) => {
-          const identifier = `${policyIdHex}.${assetHex}`;
-          const mintTxData = metadata[identifier];
-          const assetNameAscii = hex_to_ascii(assetHex);
-          const tokenMeta = mintTxData?.filter(
-            (txData: MultiAssetTxMintMetadataType) =>
-              txData.key === NFT_METADATA_ONCHAIN_KEY
-          )?.[0];
+  const results = Object.keys(
+    policyIdAssetMap
+  ).reduce<PolicyIdAssetMetadataInfoMap>((policyMap, policyIdHex: string) => {
+    const assetNamesHex: string[] = policyIdAssetMap[policyIdHex];
+    const assetInfoMap = assetNamesHex?.reduce<AssetMetadataInfoMap>(
+      (assetMap, assetHex: string) => {
+        const identifier = `${policyIdHex}.${assetHex}`;
+        const mintTxData = metadata[identifier];
+        const assetNameAscii = hex_to_ascii(assetHex);
+        const tokenMeta = mintTxData?.filter(
+          (txData: MultiAssetTxMintMetadataType) =>
+            txData.key === NFT_METADATA_ONCHAIN_KEY
+        )?.[0];
 
-          if (tokenMeta !== null) {
-            const mintedTokens = tokenMeta?.["metadata"];
+        if (tokenMeta !== null) {
+          const mintedTokens = tokenMeta?.["metadata"];
 
-            if (
-              mintedTokens == null ||
-              mintedTokens?.[policyIdHex]?.[assetNameAscii] == null
-            ) {
-              return assetMap;
-            }
-
-            const currentAssetDetails =
-              mintedTokens[policyIdHex][assetNameAscii];
-
-            // image and name should be present
-            const name = joinMetadata(currentAssetDetails?.name);
-            const image = joinMetadata(currentAssetDetails?.image);
-            if (
-              name == null ||
-              image == null
-            ) {
-              return assetMap;
-            }
-
-            assetMap[assetHex] = {
-              name: name,
-              imageUrl: image,
-              policy: policyIdHex,
-            };
+          if (
+            mintedTokens == null ||
+            mintedTokens?.[policyIdHex]?.[assetNameAscii] == null
+          ) {
+            return assetMap;
           }
-          return assetMap;
-        },
-        {}
-      );
-      if (Object.keys(assetInfoMap).length > 0) {
-        policyMap[policyIdHex] = assetInfoMap;
-      }
 
-      return policyMap;
-    },
-    {}
-  );
+          const currentAssetDetails = mintedTokens[policyIdHex][assetNameAscii];
+
+          // image and name should be present
+          const name = joinMetadata(currentAssetDetails?.name);
+          const image = joinMetadata(currentAssetDetails?.image);
+          if (name == null || image == null) {
+            return assetMap;
+          }
+
+          assetMap[assetHex] = {
+            name: name,
+            imageUrl: image,
+            policy: policyIdHex,
+          };
+        }
+        return assetMap;
+      },
+      {}
+    );
+    if (Object.keys(assetInfoMap).length > 0) {
+      policyMap[policyIdHex] = assetInfoMap;
+    }
+
+    return policyMap;
+  }, {});
 
   return results;
 }
