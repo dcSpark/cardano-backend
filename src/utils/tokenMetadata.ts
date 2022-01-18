@@ -65,17 +65,9 @@ export async function getMultiAssetTxMintMetadata(
   assets: PolicyIdAssetMapType
 ): Promise<Record<string, MultiAssetTxMintMetadataType[]>> {
   const query = createGetMultiAssetTxMintMetadataQuery(assets);
-  // const params = Object.keys(assets)
-  //   .map((policyIdHex: string) => {
-  //     const assetNames = assets?.[policyIdHex] ?? [];
-  //     return assetNames
-  //       .map((assetName) => [assetName, policyIdHex])
-  //       .reduce((prev, curr) => prev.concat(curr), []);
-  //   })
-  //   .reduce((prev, curr) => prev.concat(curr), []);
+
   const params = Object.keys(assets).reduce<string[]>(
     (acc, currentPolicyIdHex) => {
-      //const assetNames = assets?.[policyIdHex] ?? [];
       return acc.concat([currentPolicyIdHex, ...assets[currentPolicyIdHex]]);
     },
     []
