@@ -36,11 +36,11 @@ function createGetMultiAssetTxMintMetadataQuery(assets: PolicyIdAssetMapType) {
   const whereConditions = Object.keys(assets)
     .map((policyIdHex: string) => {
       const assetNames = assets?.[policyIdHex] ?? [];
-      const policID = `( encode(ma.policy, 'hex') = ($${index++})::varchar and`;
+      const policyID = `( encode(ma.policy, 'hex') = ($${index++})::varchar and`;
       const query = assetNames
         .map((_) => `encode(ma.name, 'hex') = ($${index++})::varchar`)
         .join(" or ");
-      const addPolicyId = `${policID} (${query}) )`;
+      const addPolicyId = `${policyID} (${query}) )`;
 
       return addPolicyId;
     })
