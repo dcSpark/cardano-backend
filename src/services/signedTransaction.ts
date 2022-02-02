@@ -45,7 +45,7 @@ export const handleSignedTx = async (req: Request, res: Response<any[]>): Promis
         LOGGING_MSG_HOLDER[1] = `ERR_ERR: ${err}`;
       }
     });
-    if (endpointResponse.status === 200) {
+    if (endpointResponse.status === 200 || endpointResponse?.data) {
       res.send([]);
       return;
     } else {
