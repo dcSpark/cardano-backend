@@ -26,26 +26,9 @@ export const handleSignedTx = async (req: Request, res: Response<any[]>): Promis
       , url: submissionEndpoint
       , data: buffer
       , headers: contentTypeHeaders
-    }).then(r => {
-      try {
-        const {status, statusText, data} = r || {};
-        LOGGING_MSG_HOLDER[0] = `FULL: ${JSON.stringify({status, statusText, data})}`;
-      } catch (e) {
-        try {
-          LOGGING_MSG_HOLDER[0] = `FULL_ERR: ${r} | ${e}`;
-        } catch (ee) {
-          LOGGING_MSG_HOLDER[0] = `FULL_ERR_ERR: ${ee}`;
-        }
-      }
-      return r;
-    }, err => {
-      try {
-        LOGGING_MSG_HOLDER[1] = `ERR: ${JSON.stringify(err.response.data)}`;
-      } catch (e) {
-        LOGGING_MSG_HOLDER[1] = `ERR_ERR: ${err}`;
-      }
     });
-    if (endpointResponse.status === 200 || endpointResponse?.data) {
+
+    if (endpointResponse.status === 200) {
       res.send([]);
       return;
     } else {
