@@ -107,29 +107,22 @@ const askTransactionSqlQuery = `
           UNION
             ${/* 3) Get all certificates for the transaction */ ""}
             select tx.hash as hash
-            from tx 
+            FROM tx
+              
+            JOIN stake_registration reg
+              ON tx.id = reg.tx_id				
+            JOIN stake_address addr
+              ON reg.addr_id = addr.id
+              
+            LEFT JOIN stake_deregistration dereg
+              ON dereg.addr_id = addr.id
 
-            JOIN combined_certificates as certs 
-              on tx.id = certs."txId" 
-            where
-              (
-                certs."formalType" in ('CertRegKey', 'CertDeregKey','CertDelegate')
-                and certs."stakeCred" = any(
-                  ${
-                    /* stakeCred is encoded as a string, so we have to convert from a byte array to a hex string */ ""
-                  }
-                  (SELECT array_agg(encode(addr, 'hex')) from UNNEST($7::bytea array) as addr)::varchar array
-                )
-              ) or (
-                ${
-                  /* note: PoolRetirement only contains pool key hash, so no way to map it to an address */ ""
-                }
-                certs."formalType" in ('CertRegPool')
-                and certs."poolParamsRewardAccount" = any(
-                  ${
-                    /* poolParamsRewardAccount is encoded as a string, so we have to convert from a byte array to a hex string */ ""
-                  }
-                  (SELECT array_agg(encode(addr, 'hex')) from UNNEST($7::bytea array) as addr)::varchar array
+            LEFT JOIN delegation del
+              ON del.addr_id = addr.id
+
+              where (
+                encode(addr.hash_raw::bytea, 'hex'::text) = any(
+                (SELECT array_agg(encode(addr, 'hex')) from UNNEST($7::bytea array) as addr)::varchar array
                 )
               )
 
@@ -217,9 +210,7 @@ const askTransactionSqlQuery = `
           join stake_address as addr
           on addr.id = w.addr_id
           where tx_id = tx.id) as withdrawals
-       , (select json_agg(row_to_json(combined_certificates) order by "certIndex" asc)
-          from combined_certificates 
-          where "txId" = tx.id) as certificates
+       , certificates_agg(tx.id) as certificates
                             
   from tx
 
