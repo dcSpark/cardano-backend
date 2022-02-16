@@ -1,4 +1,4 @@
-import { utxoForTransactionsRequest } from "./data/utxoForTransactions";
+import { utxoForTransactionResponse, utxoForTransactionsRequest } from "./data/utxoForTransactions";
 import axios from "axios";
 import { expect } from "chai";
 
@@ -13,16 +13,12 @@ describe(testingApi, function () {
     const postData = { transactions: utxoForTransactionsRequest };
     const result = await axios.post(`${endpoint}${testingApi}`, postData);
 
-    expect(result.data).to.exist;
-    expect(result.data).be.an("array");
-    expect(result.data.length).to.be.equal(2);
-    expect(result.data[0]).to.have.property("amount");
-    expect(result.data[0]).to.have.property("block_num");
-    expect(result.data[0]).to.have.property("tx_index");
-    expect(result.data[0]).to.have.property("tx_hash");
-    expect(result.data[0].tx_hash).to.be.an("string");
-    expect(result.data[0].amount).to.be.equal("227600000");
-    expect(result.data[0].block_num).to.be.equal(6750594);
-    expect(result.data[0].tx_index).to.be.equal(2);
+    const resultData = [...result.data];
+    resultData.sort((a: any, b: any) => {
+      if (a.utxo_id < b.utxo_id) return 1;
+      if (a.utxo_id === b.utxo_id) return 0;
+      return -1;
+    });
+    expect(resultData).be.deep.eq(utxoForTransactionResponse);
   });
 });
