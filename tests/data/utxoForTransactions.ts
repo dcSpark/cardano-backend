@@ -1,7 +1,7 @@
 export const utxoForTransactionsRequest = [
   {
-    txHash: "00001781e639bdf53cdac97ebbaf43035b35ce59be9f6e480e7b46dcd5c67028",
-    index: 2,
+    txHash: "7775d5e094b3660cae2464da5ba029134bfa9ca410cc3c7198d23731855bc3d0",
+    index: 0,
   },
   {
     txHash: "00001781e639bdf53cdac97ebbaf43035b35ce59be9f6e480e7b46dcd5c67028",
@@ -12,14 +12,19 @@ export const utxoForTransactionsRequest = [
 export const utxoForTransactionResponse = [
   {
     utxo_id:
-      "00001781e639bdf53cdac97ebbaf43035b35ce59be9f6e480e7b46dcd5c67028:2",
-    tx_hash: "00001781e639bdf53cdac97ebbaf43035b35ce59be9f6e480e7b46dcd5c67028",
-    tx_index: 2,
+      "7775d5e094b3660cae2464da5ba029134bfa9ca410cc3c7198d23731855bc3d0:0",
+    tx_hash: "7775d5e094b3660cae2464da5ba029134bfa9ca410cc3c7198d23731855bc3d0",
+    tx_index: 0,
     receiver:
-      "addr1qyyv89yc7wxxezym9fxww9jzz2588dm23dhh56w7lnn0ep5la84xq2nfsem7xfzkwlmhhezwd3s04cssx7neszgfkt2sn3yajq",
-    amount: "227600000",
-    assets: [],
-    block_num: 6750594,
+      "addr1vyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkdl5mw",
+    amount: "1344798",
+    assets: [{
+      amount: "1",
+      assetId: "db01dec7311778ad90b72627a38cd6ec61a298f964d2320b4a67c23b.564950",
+      name: "564950",
+      policyId: "db01dec7311778ad90b72627a38cd6ec61a298f964d2320b4a67c23b",
+    }],
+    block_num: 6347041,
   },
   {
     utxo_id:

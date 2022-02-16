@@ -7,11 +7,15 @@ import { Request, Response } from "express";
 const addrReqLimit: number = config.get("server.addressRequestLimit");
 
 const accountRewardsQuery = `
-  with queried_addresses as (
-    select *
-    from stake_address
-    where encode(stake_address.hash_raw, 'hex') = any(($1)::varchar array)
-  )
+  with
+    filterAddresses as (
+      select decode(n, 'hex') from unnest(($1)::varchar array) as n
+    ),
+    queried_addresses as (
+      select *
+      from stake_address
+      where stake_address.hash_raw in (select * from filterAddresses)
+    )
 
   select queried_addresses.hash_raw as "stakeAddress"
       , sum(coalesce("totalReward".spendable_amount,0) - coalesce("totalWithdrawal".amount,0)) as "remainingAmount"
@@ -57,12 +61,16 @@ interface Dictionary<T> {
   [key: string]: T;
 }
 
+function isHex(str: string): boolean {
+  return /^[A-F0-9]+$/i.test(str);
+}
+
 const getAccountStateFromDB = async (
   pool: Pool,
   addresses: string[]
 ): Promise<Dictionary<RewardInfo | null>> => {
   const ret: Dictionary<RewardInfo | null> = {};
-  const rewards = await pool.query(accountRewardsQuery, [addresses]);
+  const rewards = await pool.query(accountRewardsQuery, [addresses.filter(addr => isHex(addr))]);
   for (const row of rewards.rows) {
     ret[row.stakeAddress.toString("hex")] = {
       remainingAmount: row.remainingAmount,

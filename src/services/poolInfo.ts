@@ -32,14 +32,14 @@ export const latestMetadataQuery = `
           on pool_hash.id = pool_update.hash_id 
      join pool_metadata_ref
           on pool_update.meta_id = pool_metadata_ref.id
-     where encode(pool_hash.hash_raw, 'hex') = $1
+     where pool_hash.hash_raw = decode($1, 'hex')
     order by pool_update.id desc limit 1;
 `;
 
 export const poolExistsQuery = `
   select *
   from pool_hash
-  where encode(pool_hash.hash_raw, 'hex') = $1
+  where pool_hash.hash_raw = decode($1, 'hex')
 `;
 
 export const poolMetadataQuery = `
@@ -47,7 +47,7 @@ export const poolMetadataQuery = `
   from pool_hash
   join pool_offline_data
     on pool_hash.id = pool_offline_data.pool_id
-  where encode(pool_hash.hash_raw, 'hex') = $1
+  where pool_hash.hash_raw = decode($1, 'hex')
 `;
 
 export const poolHistoryQuery = `
