@@ -60,14 +60,11 @@ const submit = async (req: Request, res: Response) => {
       res.send([]);
       return;
     } else {
-      const { status, statusText, data } = endpointResponse || {};
       LOGGING_MSG_HOLDER[0] = `FULL: ${JSON.stringify({
-        status,
-        statusText,
-        data,
+        endpointResponse,
       })}`;
       throw Error(
-        `I did not understand the response from the submission endpoint: ${LOGGING_MSG_HOLDER[0]}`
+        ` Error from the submission endpoint: ${LOGGING_MSG_HOLDER[0]}`
       );
     }
   } catch (error: any) {
