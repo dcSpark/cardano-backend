@@ -40,12 +40,20 @@ const submitToQueue = async (req: Request, res: Response) => {
 const submit = async (req: Request, res: Response) => {
   const buffer = Buffer.from(req.body.signedTx, "base64");
   const LOGGING_MSG_HOLDER: [null | string, null | string] = [null, null];
+  let requestUrl = submissionEndpoint;
+  const headers: Record<string, string> = { ...contentTypeHeaders };
+
+  if (req.body.customNodeUrl) {
+    requestUrl = req.body.customNodeUrl;
+    delete headers.project_id;
+  }
+
   try {
     const endpointResponse: any = await axios({
       method: "post",
-      url: submissionEndpoint,
+      url: requestUrl,
       data: buffer,
-      headers: contentTypeHeaders,
+      headers,
     });
 
     if (endpointResponse.status === 200) {
@@ -53,53 +61,23 @@ const submit = async (req: Request, res: Response) => {
       return;
     } else {
       const { status, statusText, data } = endpointResponse || {};
+      LOGGING_MSG_HOLDER[0] = `FULL: ${JSON.stringify({
+        status,
+        statusText,
+        data,
+      })}`;
       throw Error(
-        `I did not understand the response from the submission endpoint: ${JSON.stringify(
-          {
-            status,
-            statusText,
-            data,
-            err: LOGGING_MSG_HOLDER[1],
-          }
-        )}`
+        `I did not understand the response from the submission endpoint: ${LOGGING_MSG_HOLDER[0]}`
       );
     }
   } catch (error: any) {
-    const msg = `Error trying to send transaction: ${error} - ${JSON.stringify(
-      LOGGING_MSG_HOLDER
-    )}`;
-    throw Error(msg);
-  }
-};
-
-const submitToCustomURL = async (req: Request, res: Response) => {
-  const customNodeUrl = req.body.customNodeUrl;
-  // validate URL?
-  const buffer = Buffer.from(req.body.signedTx, "base64");
-  const LOGGING_MSG_HOLDER: [null | string, null | string] = [null, null];
-
-  try {
-    const endpointResponse: any = await axios({
-      method: "post",
-      url: customNodeUrl,
-      data: buffer,
-    });
-
-    if (endpointResponse.status === 200) {
-      res.send([]);
-      return;
-    } else {
-      throw Error(
-        `I did not understand the response from the submission endpoint: ${JSON.stringify(
-          {
-            urlResponse: endpointResponse,
-            err: LOGGING_MSG_HOLDER[1],
-          }
-        )}`
-      );
+    try {
+      LOGGING_MSG_HOLDER[0] = `ERR: ${JSON.stringify(error)}`;
+    } catch (err) {
+      LOGGING_MSG_HOLDER[1] = `ERR_ERR: ${err}`;
     }
-  } catch (error: any) {
-    const msg = `Error trying to send transaction via custom node URL: ${error} - ${JSON.stringify(
+
+    const msg = `Error trying to send transaction:${JSON.stringify(
       LOGGING_MSG_HOLDER
     )}`;
     throw Error(msg);
@@ -112,10 +90,6 @@ export const handleSignedTx = async (
 ): Promise<void> => {
   if (!req.body.signedTx) throw new Error("No signedTx in body");
 
-  if (req.body.customNodeUrl) {
-    await submitToCustomURL(req, res);
-    return;
-  }
   if (config.get("usingQueueEndpoint") === "true") {
     await submitToQueue(req, res);
   } else {
