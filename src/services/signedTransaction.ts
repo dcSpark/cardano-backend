@@ -39,11 +39,11 @@ const submitToQueue = async (req: Request, res: Response) => {
 
 const submit = async (req: Request, res: Response) => {
   const buffer = Buffer.from(req.body.signedTx, "base64");
-  const LOGGING_MSG_HOLDER: [null | string, null | string] = [null, null];
+  let LOGGING_MSG_HOLDER: null | string = null;
   let requestUrl = submissionEndpoint;
   const headers: Record<string, string> = { ...contentTypeHeaders };
-
-  if (req.body.customNodeUrl) {
+  const isCustomNodeRequest = req.body.customNodeUrl;
+  if (isCustomNodeRequest) {
     requestUrl = req.body.customNodeUrl;
     delete headers.project_id;
   }
@@ -60,24 +60,34 @@ const submit = async (req: Request, res: Response) => {
       res.send([]);
       return;
     } else {
-      LOGGING_MSG_HOLDER[0] = `FULL: ${JSON.stringify({
-        endpointResponse,
-      })}`;
-      throw Error(
-        ` Error from the submission endpoint: ${LOGGING_MSG_HOLDER[0]}`
-      );
+      if (isCustomNodeRequest) {
+        LOGGING_MSG_HOLDER = `${JSON.stringify({
+          endpointResponse,
+        })}`;
+      } else {
+        const { status } = endpointResponse || {};
+        LOGGING_MSG_HOLDER = `${JSON.stringify({
+          status,
+          error: `Submission Endpoint Error:${blockfrostErrorMsg(status)}`,
+        })}`;
+      }
+
+      throw Error(` Error from the submission endpoint: ${LOGGING_MSG_HOLDER}`);
     }
   } catch (error: any) {
-    try {
-      LOGGING_MSG_HOLDER[0] = `ERR: ${JSON.stringify(error)}`;
-    } catch (err) {
-      LOGGING_MSG_HOLDER[1] = `ERR_ERR: ${err}`;
+    if (error.response) {
+      const { status, data } = error.response;
+      LOGGING_MSG_HOLDER = `${JSON.stringify({
+        status,
+        data,
+      })}`;
+    } else {
+      LOGGING_MSG_HOLDER = `Error trying to send transaction:${JSON.stringify(
+        error
+      )}`;
     }
 
-    const msg = `Error trying to send transaction:${JSON.stringify(
-      LOGGING_MSG_HOLDER
-    )}`;
-    throw Error(msg);
+    throw Error(LOGGING_MSG_HOLDER);
   }
 };
 
@@ -91,5 +101,24 @@ export const handleSignedTx = async (
     await submitToQueue(req, res);
   } else {
     await submit(req, res);
+  }
+};
+
+const blockfrostErrorMsg = (status: number) => {
+  switch (status) {
+    case 400:
+      return "Bad Request";
+    case 403:
+      return "Invalid secret";
+    case 404:
+      return "Component not found";
+    case 425:
+      return "Mempool full, please wait sometime";
+    case 429:
+      return "Usage limit reached";
+    case 500:
+      return "Internal server error";
+    default:
+      return "Unknown error";
   }
 };
