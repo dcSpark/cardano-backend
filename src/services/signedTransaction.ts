@@ -68,7 +68,7 @@ const submit = async (req: Request, res: Response) => {
         const { status } = endpointResponse || {};
         LOGGING_MSG_HOLDER = JSON.stringify({
           status,
-          error: `Submission Endpoint Error:${blockfrostErrorMsg(status)}`,
+          error: JSON.stringify(endpointResponse?.data ?? {}),
         });
       }
 
@@ -101,24 +101,5 @@ export const handleSignedTx = async (
     await submitToQueue(req, res);
   } else {
     await submit(req, res);
-  }
-};
-
-const blockfrostErrorMsg = (status: number) => {
-  switch (status) {
-    case 400:
-      return "Bad Request";
-    case 403:
-      return "Invalid secret";
-    case 404:
-      return "Component not found";
-    case 425:
-      return "Mempool full, please wait sometime";
-    case 429:
-      return "Usage limit reached";
-    case 500:
-      return "Internal server error";
-    default:
-      return "Unknown error";
   }
 };
