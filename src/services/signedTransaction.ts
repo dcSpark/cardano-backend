@@ -61,15 +61,15 @@ const submit = async (req: Request, res: Response) => {
       return;
     } else {
       if (isCustomNodeRequest) {
-        LOGGING_MSG_HOLDER = `${JSON.stringify({
+        LOGGING_MSG_HOLDER = JSON.stringify({
           endpointResponse,
-        })}`;
+        });
       } else {
         const { status } = endpointResponse || {};
-        LOGGING_MSG_HOLDER = `${JSON.stringify({
+        LOGGING_MSG_HOLDER = JSON.stringify({
           status,
           error: `Submission Endpoint Error:${blockfrostErrorMsg(status)}`,
-        })}`;
+        });
       }
 
       throw Error(` Error from the submission endpoint: ${LOGGING_MSG_HOLDER}`);
@@ -77,10 +77,10 @@ const submit = async (req: Request, res: Response) => {
   } catch (error: any) {
     if (error.response) {
       const { status, data } = error.response;
-      LOGGING_MSG_HOLDER = `${JSON.stringify({
+      LOGGING_MSG_HOLDER = JSON.stringify({
         status,
         data,
-      })}`;
+      });
     } else {
       LOGGING_MSG_HOLDER = `Error trying to send transaction:${JSON.stringify(
         error
