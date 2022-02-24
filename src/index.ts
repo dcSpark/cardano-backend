@@ -73,12 +73,11 @@ const metricsMiddleware = promBundle({
   // },
   customLabels: {
     app: "cardano-backend",
-    version: process.env.version
+    version: process.env.version,
   },
   // maxAgeSeconds: 120,
   // ageBuckets: 2,
 });
-
 
 const pool = new Pool({
   user: config.get("db.user"),
@@ -307,7 +306,7 @@ const getStatus = async (req: Request, res: Response) => {
     isServerOk: true,
     isMaintenance: false,
     serverTime: Date.now(),
-    version: process.env.version
+    version: process.env.version,
   });
 };
 
