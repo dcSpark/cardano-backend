@@ -59,6 +59,9 @@ import { utxoForTransaction } from "./services/utxoForTransaction";
 
 import { mapTransactionFragsToResponse } from "./utils/mappers";
 
+import morganBody from "morgan-body";
+import bodyParser from "body-parser";
+
 import promBundle = require("express-prom-bundle");
 
 const TX_HISTORY_API_VERSION = 1;
@@ -98,6 +101,13 @@ createTransactionUtilityFunctions(pool);
 const healthChecker = new HealthChecker(() => askBestBlock(pool));
 
 const router = express();
+// must parse body before morganBody as body will be logged
+router.use(bodyParser.json());
+// hook morganBody to express app
+morganBody(router, {
+  prettify: false,
+  skip: (_, res) => res.statusCode < 400,
+});
 
 const middlewares = [
   middleware.handleCors,
