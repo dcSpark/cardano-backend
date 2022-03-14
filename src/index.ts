@@ -60,6 +60,9 @@ import { utxoForTransaction } from "./services/utxoForTransaction";
 import { mapTransactionFragsToResponse } from "./utils/mappers";
 
 import promBundle = require("express-prom-bundle");
+
+const TX_HISTORY_API_VERSION = 1;
+
 // for config see: https://www.npmjs.com/package/express-prometheus-middleware
 const metricsMiddleware = promBundle({
   includeStatusCode: true,
@@ -73,12 +76,11 @@ const metricsMiddleware = promBundle({
   // },
   customLabels: {
     app: "cardano-backend",
-    version: process.env.version
+    version: process.env.version,
   },
   // maxAgeSeconds: 120,
   // ageBuckets: 2,
 });
-
 
 const pool = new Pool({
   user: config.get("db.user"),
@@ -255,7 +257,7 @@ const txHistory = async (req: Request, res: Response) => {
         case "ok": {
           const txs = mapTransactionFragsToResponse(maybeTxs.value);
 
-          res.send(txs);
+          res.send({ txs, version: TX_HISTORY_API_VERSION });
           return;
         }
         case "error":
@@ -307,7 +309,7 @@ const getStatus = async (req: Request, res: Response) => {
     isServerOk: true,
     isMaintenance: false,
     serverTime: Date.now(),
-    version: process.env.version
+    version: process.env.version,
   });
 };
 
