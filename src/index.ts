@@ -62,7 +62,8 @@ import { mapTransactionFragsToResponse } from "./utils/mappers";
 import promBundle = require("express-prom-bundle");
 
 const TX_HISTORY_API_VERSION = 1;
-const FLINT_VERSION_WITH_API_VERSION_SUPPORT = "1.8.3"; // TODO should changed as per the release
+// this should be as per the release
+const FLINT_VERSION_WITH_API_VERSION_SUPPORT = "1.8.4";
 
 // for config see: https://www.npmjs.com/package/express-prometheus-middleware
 const metricsMiddleware = promBundle({
