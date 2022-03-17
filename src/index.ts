@@ -60,6 +60,11 @@ import { utxoForTransaction } from "./services/utxoForTransaction";
 import { mapTransactionFragsToResponse } from "./utils/mappers";
 
 import promBundle = require("express-prom-bundle");
+
+const TX_HISTORY_API_VERSION = 1;
+// this should be as per the release
+const FLINT_VERSION_WITH_API_VERSION_SUPPORT = "1.8.4";
+
 // for config see: https://www.npmjs.com/package/express-prometheus-middleware
 const metricsMiddleware = promBundle({
   includeStatusCode: true,
@@ -254,6 +259,20 @@ const txHistory = async (req: Request, res: Response) => {
         case "ok": {
           const txs = mapTransactionFragsToResponse(maybeTxs.value);
 
+          if (req.headers?.["flint-version"]) {
+            const userFlintVersion = req.headers?.["flint-version"];
+
+            // https://github.com/substack/semver-compare
+            const flintSupportsApiVersion = semverCompare(
+              userFlintVersion,
+              FLINT_VERSION_WITH_API_VERSION_SUPPORT
+            );
+            // if userFlintVersion >=  FLINT_VERSION_WITH_API_VERSION_SUPPORT
+            if (flintSupportsApiVersion >= 0) {
+              res.send({ txs, version: TX_HISTORY_API_VERSION });
+              return;
+            }
+          }
           res.send(txs);
           return;
         }
