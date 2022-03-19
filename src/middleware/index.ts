@@ -32,7 +32,9 @@ export const handleTiming = (router: Router): void => {
         console.log(
           `[CALLTIME] millis=${time} url=${req.url} req=${JSON.stringify(
             req.body
-          )} res=${JSON.stringify(res)}`
+          )}`
+          // TODO: how to add body of response?
+          //  res=${JSON.stringify(res)}`
         );
     })
   );
