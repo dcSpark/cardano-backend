@@ -19,14 +19,21 @@ export const handleCompression = (router: Router): void => {
   router.use(compression());
 };
 
+const ENDPOINTS_TO_OMIT: Array<string> = [
+  "/metrics",
+  "/v2/importerhealthcheck",
+];
+
 export const handleTiming = (router: Router): void => {
   router.use(
     responseTime((req: Request, res: Response, time: number) => {
-      console.log(
-        `[CALLTIME] millis=${time} url=${req.url} body=${JSON.stringify(
-          req.body
-        )}`
-      );
+      // omit metrics logs
+      if (!ENDPOINTS_TO_OMIT.includes(req.url))
+        console.log(
+          `[CALLTIME] millis=${time} url=${req.url} req=${JSON.stringify(
+            req.body
+          )} res=${JSON.stringify(res)}`
+        );
     })
   );
 };
