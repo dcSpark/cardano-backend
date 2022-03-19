@@ -14,6 +14,9 @@ const contentTypeHeaders = {
   project_id: blockfrostProjectKey,
 };
 
+const isSuccessCode = (statusCode: number): boolean => {
+  return statusCode >= 200 && statusCode <= 299;
+};
 const submitToQueue = async (req: Request, res: Response) => {
   try {
     const buffer = Buffer.from(req.body.signedTx, "base64");
@@ -56,7 +59,7 @@ const submit = async (req: Request, res: Response) => {
       headers,
     });
 
-    if (endpointResponse.status === 200) {
+    if (isSuccessCode(endpointResponse.status)) {
       res.send([]);
       return;
     } else {
