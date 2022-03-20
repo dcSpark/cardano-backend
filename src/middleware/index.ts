@@ -30,7 +30,7 @@ export const handleTiming = (router: Router): void => {
       // omit metrics logs
       if (!ENDPOINTS_TO_OMIT.includes(req.url))
         console.log(
-          `time=${time} url=${req.url} statusCode=${
+          `time=${(time / 1000).toFixed(3)}s url=${req.url} status=${
             res.statusCode
           } req=${JSON.stringify(req.body)}`
         );
