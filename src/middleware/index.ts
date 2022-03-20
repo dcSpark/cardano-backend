@@ -29,7 +29,14 @@ export const handleTiming = (router: Router): void => {
     responseTime((req: Request, res: Response, time: number) => {
       // omit metrics logs
       if (!ENDPOINTS_TO_OMIT.includes(req.url))
-        console.log(JSON.stringify({ req: req, time: time }));
+        console.log(
+          JSON.stringify({
+            url: req.url,
+            statusCode: req.statusCode,
+            body: req.body,
+            time: time,
+          })
+        );
       // console.log(
       //   `[CALLTIME] millis=${time} url=${req.url} req=${JSON.stringify(
       //     req.body
