@@ -32,7 +32,10 @@ export const handleTiming = (router: Router): void => {
         console.log(
           `time=${(time / 1000).toFixed(3)}s url=${req.url} status=${
             res.statusCode
-          } headers='${req.headers}' req='${JSON.stringify(req.body)}'`
+          } headers='${JSON.stringify(req.headers).replace(
+            / /g,
+            ""
+          )}' req='${JSON.stringify(req.body)}'`
         );
       // console.log(
       //   JSON.stringify({
