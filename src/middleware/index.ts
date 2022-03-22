@@ -27,7 +27,7 @@ const ENDPOINTS_TO_OMIT: Array<string> = [
 export const handleTiming = (router: Router): void => {
   router.use(
     responseTime((req: Request, res: Response, time: number) => {
-      // omit metrics logs
+      // omit metrics & healthpoints logs
       if (!ENDPOINTS_TO_OMIT.includes(req.url))
         console.log(
           `time=${(time / 1000).toFixed(3)}s url=${req.url} status=${
@@ -37,21 +37,7 @@ export const handleTiming = (router: Router): void => {
             ""
           )}' req='${JSON.stringify(req.body)}'`
         );
-      // console.log(
-      //   JSON.stringify({
-      //     url: req.url,
-      //     statusCode: res.statusCode,
-      //     req: req.body,
-      //     time: time,
-      //   })
-      // );
-      // console.log(
-      //   `[CALLTIME] millis=${time} url=${req.url} req=${JSON.stringify(
-      //     req.body
-      //   )}`
       // TODO: how to add body of response?
-      //  res=${JSON.stringify(res)}`
-      // );
     })
   );
 };
