@@ -23,19 +23,29 @@ const ENDPOINTS_TO_OMIT: Array<string> = [
   "/metrics",
   "/v2/importerhealthcheck",
 ];
+const stripSpaces = (str: string): string => {
+  // Loki tool, that collects logs
+  // does not like spaces
+  if (str.includes(" ")) {
+    return `${str.replace(/ /g, "")}`;
+  }
+  return str;
+};
 
 export const handleTiming = (router: Router): void => {
   router.use(
     responseTime((req: Request, res: Response, time: number) => {
+      // some entries has to have quotes key='value'
+      // otherwise Loki tries to parse these values
+
       // omit metrics & healthpoints logs
       if (!ENDPOINTS_TO_OMIT.includes(req.url))
         console.log(
           `time=${(time / 1000).toFixed(3)}s url=${req.url} status=${
             res.statusCode
-          } headers='${JSON.stringify(req.headers).replace(
-            / /g,
-            ""
-          )}' req='${JSON.stringify(req.body)}'`
+          } headers=${stripSpaces(
+            JSON.stringify(req.headers)
+          )} req=${JSON.stringify(req.body)}`
         );
       // TODO: how to add body of response?
     })
