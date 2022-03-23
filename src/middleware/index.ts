@@ -35,9 +35,6 @@ const stripSpaces = (str: string): string => {
 export const handleTiming = (router: Router): void => {
   router.use(
     responseTime((req: Request, res: Response, time: number) => {
-      // some entries has to have quotes key='value'
-      // otherwise Loki tries to parse these values
-
       // omit metrics & healthpoints logs
       if (!ENDPOINTS_TO_OMIT.includes(req.url))
         console.log(
