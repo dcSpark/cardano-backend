@@ -19,14 +19,32 @@ export const handleCompression = (router: Router): void => {
   router.use(compression());
 };
 
+const ENDPOINTS_TO_OMIT: Array<string> = [
+  "/metrics",
+  "/v2/importerhealthcheck",
+];
+const stripSpaces = (str: string): string => {
+  // Loki tool, that collects logs
+  // does not like spaces
+  if (str.includes(" ")) {
+    return `${str.replace(/ /g, "")}`;
+  }
+  return str;
+};
+
 export const handleTiming = (router: Router): void => {
   router.use(
     responseTime((req: Request, res: Response, time: number) => {
-      console.log(
-        `[CALLTIME] millis=${time} url=${req.url} body=${JSON.stringify(
-          req.body
-        )}`
-      );
+      // omit metrics & healthpoints logs
+      if (!ENDPOINTS_TO_OMIT.includes(req.url))
+        console.log(
+          `time=${(time / 1000).toFixed(3)}s url=${req.url} status=${
+            res.statusCode
+          } headers=${stripSpaces(
+            JSON.stringify(req.headers)
+          )} req=${JSON.stringify(req.body)}`
+        );
+      // TODO: how to add body of response?
     })
   );
 };
