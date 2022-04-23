@@ -692,8 +692,6 @@ We recommend querying using payment key hashes (`addr_vkh`) when possible (other
   <summary>/getTokenInfo</summary>
   Input
 
-  Up to 50 addresses in the request
-
   ```js
   {
     policyIdAssetMap: PolicyIdAssetArrMapType;
@@ -709,6 +707,35 @@ We recommend querying using payment key hashes (`addr_vkh`) when possible (other
       name?: string;
       decimals?: number;
       ticker?: string;
+      description?: string;
+      url?: string;
+      policy: string;
+      logo?: string;
+    }>>;
+    message?: string;
+  }
+  ```
+</details>
+<details>
+  <summary>/getFingerprintInfo</summary>
+  Input
+
+  ```js
+  {
+    fingerprintIdAssets: string[];
+  }
+  ```
+
+  Output
+
+  ```js
+  {
+    success: boolean;
+    data: Record<string, {
+      name?: string;
+      decimals?: number;
+      ticker?: string;
+      description?: string;
       url?: string;
       policy: string;
       logo?: string;

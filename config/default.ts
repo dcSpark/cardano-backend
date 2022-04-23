@@ -17,6 +17,8 @@ export default {
     priceFeed: process.env.priceURL || "http://localhost:8090/v1/getPrice",
     tokenInfoFeed:
       process.env.tokenInfoURL || "http://localhost:8091/v1/getTokenInfo",
+    fingerprintInfoFeed:
+      process.env.fingerprintInfoUrl || "http://localhost:8091/v1/getFingerprintInfo",
     txSubmissionEndpoint:
       process.env.TX_SUBMISSION_ENDPOINT ||
       "https://cardano-mainnet.blockfrost.io/api/v0/tx/submit",

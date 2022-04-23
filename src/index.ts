@@ -7,6 +7,7 @@ import { Request, Response } from "express";
 
 import { Pool } from "pg";
 import { getTokenInfoHandler } from "./token-registry/getTokenInfo";
+import { getFingerprintInfoHandler } from "./token-registry/getFingerprintInfo";
 
 // eslint-disable-next-line
 const semverCompare = require("semver-compare");
@@ -379,6 +380,7 @@ const routes: Route[] = [
   { path: "/pool/info", method: "post", handler: handlePoolInfo(pool) },
   { path: "/getPrice", method: "post", handler: price },
   { path: "/getTokenInfo", method: "post", handler: getTokenInfoHandler },
+  { path: "/getFingerprintInfo", method: "post", handler: getFingerprintInfoHandler },
   {
     path: "/pool/delegationHistory",
     method: "post",
