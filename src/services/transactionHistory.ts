@@ -209,7 +209,7 @@ const askTransactionSqlQuery = `
           from withdrawal as w
           join stake_address as addr
           on addr.id = w.addr_id
-          where tx_id = tx.id) as withdrawals
+          where w.tx_id = tx.id) as withdrawals
        , certificates_agg(tx.id) as certificates
                             
   from tx
