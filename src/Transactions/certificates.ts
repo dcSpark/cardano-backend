@@ -101,9 +101,9 @@ select 'PoolRegistration' as "jsType"
      , ( select json_agg(encode(stake_address.hash_raw,'hex'))
          from pool_owner inner join stake_address on pool_owner.addr_id = stake_address.id
          where
-         pool_update.hash_id = pool_hash.id
+         pool.hash_id = pool_hash.id
           and
-          pool_update.registered_tx_id = pool.registered_tx_id
+          pool.registered_tx_id = pool.registered_tx_id
        ) as "poolParamsOwners"
 
      , ( select json_agg(json_build_object( 'ipv4',       ipv4
